@@ -11,6 +11,7 @@ import java.util.*;
 public class Dijkstra extends PathFind{
 
     HashMap<Cell,Integer> map;
+    HashMap<Cell,List<List<Cell>>> edgeMap;
     public Dijkstra(Maze maze) {
         super(maze);
         map = new HashMap<>();

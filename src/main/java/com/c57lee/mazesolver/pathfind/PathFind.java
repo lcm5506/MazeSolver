@@ -97,4 +97,35 @@ public abstract class PathFind {
         return finish;
     }
 
+    public List<Cell> getEdge(Cell start, Cell next){
+        List<Cell> edge = new ArrayList<>();
+        edge.add(start);
+        Cell latest = start;
+
+        latest.setVisited(true);
+        controller.setCellSearched(latest);
+
+        Cell previous = null;
+
+        List<Cell> nextCells = maze.getOpenNeighbors(latest);
+
+        while (nextCells.size()==1){
+            edge.addAll(nextCells);
+            latest = edge.get(edge.size()-1);
+            latest.setVisited(true);
+            controller.setCellSearched(latest);
+
+            nextCells = maze.getOpenNeighbors(latest);
+            nextCells.remove(previous);
+            nextCells.remove(start); // To prevent possible loop.
+            try {
+                Thread.sleep(sleepDuration);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            previous = latest;
+        }
+        return edge;
+    }
+
 }

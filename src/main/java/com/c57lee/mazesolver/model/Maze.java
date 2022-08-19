@@ -38,6 +38,13 @@ public class Maze {
         return getNeighbors(x,y).stream().filter(c->!c.isVisited()).toList();
     }
 
+    public List<Cell> getUnvisitedNeighbors(Cell c){
+        int x = c.getX();
+        int y = c.getY();
+        return getUnvisitedNeighbors(x,y);
+
+    }
+
     public List<Cell> getOpenNeighbors(int x, int y){
         List<Cell> openNeighbors = new ArrayList<>();
         Cell cell = maze[x][y];
@@ -58,6 +65,12 @@ public class Maze {
                 openNeighbors.add(maze[x+1][y]);
         }
         return openNeighbors;
+    }
+
+    public List<Cell> getOpenNeighbors(Cell c){
+        int x = c.getX();
+        int y = c.getY();
+        return getOpenNeighbors(x,y);
     }
 
 
@@ -82,50 +95,14 @@ public class Maze {
         return unvisitedOpenNeighbors;
     }
 
+    public List<Cell> getUnvisitedOpenNeighbors(Cell c){
+        int x = c.getX();
+        int y = c.getY();
+        return getUnvisitedOpenNeighbors(x,y);
+    }
+
     public Cell getCell(int x, int y){
         return maze[x][y];
-    }
-
-    public void openTop(Cell cell){
-        int x = cell.getX();
-        int y = cell.getY();
-        maze[x][y].setTopOpen(true);
-        if (y > 0) {
-            maze[x][y - 1].setBottomOpen(true);
-            maze[x][y - 1].setVisited(true);
-        }
-    }
-
-    public void openBottom(Cell cell){
-        int x = cell.getX();
-        int y = cell.getY();
-        maze[x][y].setBottomOpen(true);
-        if (y < height-1) {
-            maze[x][y + 1].setTopOpen(true);
-            maze[x][y + 1].setVisited(true);
-        }
-    }
-
-    public void openLeft(Cell cell){
-        int x = cell.getX();
-        int y = cell.getY();
-        maze[x][y].setLeftOpen(true);
-        if (x > 0) {
-            maze[x - 1][y].setBottomOpen(true);
-            maze[x - 1][y].setVisited(true);
-        }
-    }
-
-    public void openRight(Cell cell){
-        int x = cell.getX();
-        int y = cell.getY();
-        maze[x][y].setRightOpen(true);
-        if (!maze[x][y].isVisited())
-            maze[x][y].setVisited(true);
-        if (y > 0) {
-            maze[x + 1][y].setLeftOpen(true);
-            maze[x + 1][y].setVisited(true);
-        }
     }
 
     public int getWidth() {
@@ -135,6 +112,7 @@ public class Maze {
     public int getHeight() {
         return height;
     }
+
     public void connectNeighboringCells(Cell cell1, Cell cell2){
         cell1 = getCell(cell1.getX(),cell1.getY());
         cell2 = getCell(cell2.getX(),cell2.getY());
