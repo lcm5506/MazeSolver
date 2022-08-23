@@ -62,14 +62,14 @@ public class Kruskal extends GenerationMethod{
                 }
 
                 // Remove few random walls to possibly create loops and non-perfect maze
-                for (int i=0; i<600; i++){
-                    Wall removedWall = closedWalls.remove(myRandom.nextInt(closedWalls.size()));
-                    Cell cell1 = removedWall.getCell1();
-                    Cell cell2 = removedWall.getCell2();
-                    connectNeighboringCells(cell1, cell2);
-                    cellSets.mergeSetsContaining(cell1, cell2);
-                    //Thread.sleep(getSleepDuration());
-                }
+//                for (int i=0; i<600; i++){
+//                    Wall removedWall = closedWalls.remove(myRandom.nextInt(closedWalls.size()));
+//                    Cell cell1 = removedWall.getCell1();
+//                    Cell cell2 = removedWall.getCell2();
+//                    connectNeighboringCells(cell1, cell2);
+//                    cellSets.mergeSetsContaining(cell1, cell2);
+//                    //Thread.sleep(getSleepDuration());
+//                }
 
                 return null;
             }

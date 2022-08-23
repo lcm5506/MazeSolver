@@ -63,8 +63,4 @@ public class BreadthFirstSearch extends PathFind {
         };
     }
 
-    @Override
-    public void getPathWithoutTask() {
-
-    }
 }

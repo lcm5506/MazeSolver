@@ -22,92 +22,57 @@ public class Dijkstra extends PathFind{
         return new Task<List<Cell>>() {
             @Override
             protected List<Cell> call() throws Exception {
-                List<Cell> current = new ArrayList<>();
-                Comparator<List<Cell>> comparator = new Comparator<List<Cell>>() {
-                    @Override
-                    public int compare(List<Cell> o1, List<Cell> o2) {
-                        if (o1.size()>o2.size())
-                            return 1;
-                        else if (o1.size()== o2.size())
-                            return 0;
-                        else
-                            return -1;
-                    }
-                };
+                Comparator<List<Cell>> comparator = getComparator();
                 PriorityQueue<List<Cell>> priorityQueue = new PriorityQueue<>(comparator);
-                PriorityQueue<List<Cell>> foundPaths = new PriorityQueue<>(comparator);
+                PriorityQueue<List<Cell>> foundPaths = new PriorityQueue<>(Comparator.comparingInt(List::size));
                 ArrayList<Cell> rootList = new ArrayList<>();
                 rootList.add(start);
                 priorityQueue.add(rootList);
+                int minLength = Integer.MAX_VALUE;
 
                 while(!priorityQueue.isEmpty()){
-                    current = priorityQueue.poll();
+                    List <Cell> current = priorityQueue.poll();
+
                     Cell latest = current.get(current.size()-1);
-                    latest.setVisited(true);
                     controller.setCellSearched(latest);
-                    if (latest.getX()== finish.getX() && latest.getY()== finish.getY()) {
-                        foundPaths.add(current);
+
+                    // Drop all paths in consideration that have no chance of being shorter than 'found' path.
+                    if (current.size()+getDistance(latest,finish)>minLength)
                         continue;
-                    }
-                    Cell previous;
+
+                    Cell previous = null;
                     if (current.size()>1)
                         previous = current.get(current.size()-2);
-                    else
-                        previous = null;
 
-                    List<Cell> nextCells = maze.getOpenNeighbors(latest.getX(),latest.getY());
+                    List<Cell> nextCells = maze.getOpenNeighbors(latest);
                     nextCells.remove(previous);
                     nextCells.removeAll(current);
 
-                    // move to next vertex
-                    while (nextCells.size()==1){
-                        current.addAll(nextCells);
-                        latest = current.get(current.size()-1);
-                        latest.setVisited(true);
-                        controller.setCellSearched(latest);
-                        if (latest.getX()== finish.getX() && latest.getY()== finish.getY()) {
-                            foundPaths.add(current);
-                            break;
+                    if (nextCells.isEmpty())
+                        continue;
+                    for(Cell c: nextCells){
+                        List<Cell> nextPath = new ArrayList<>(current);
+                        List<Cell> edge = getEdge(latest,c);
+                        if (edge.contains(finish)){
+                            nextPath.addAll(edge.subList(0,edge.indexOf(finish)+1));
+                            foundPaths.add(nextPath);
+                            controller.setAllPathFound(nextPath);
+                            System.out.println("path found!");
+                            if (nextPath.size() < minLength)
+                                minLength = nextPath.size();
+                            continue;
                         }
-                        if (current.size()>1)
-                            previous = current.get(current.size()-2);
-                        else
-                            previous = null;
-
-                        nextCells = maze.getOpenNeighbors(latest.getX(),latest.getY());
-                        nextCells.remove(previous);
-                        nextCells.removeAll(current);
-                        Thread.sleep(sleepDuration);
-                    }
-
-                    if (nextCells.size()>1){
-                        for (Cell c: nextCells) {
-                            List<Cell> nextPath = new ArrayList<>(current);
-                            nextPath.add(c);
-
-                            if (map.containsKey(c)){
-                                if (map.get(c)>nextPath.size()){
-                                    priorityQueue.removeIf(l->l.contains(c));
-                                    priorityQueue.add(nextPath);
-                                    map.replace(c,nextPath.size());
-                                }
-                            } else {
-                                priorityQueue.add(nextPath);
-                                map.put(c,nextPath.size());
-                            }
+                        nextPath.addAll(getEdge(latest,c));
+                        int isInMap = isInMap(nextPath);
+                        if (isInMap == 1){
+                            priorityQueue.removeIf(l->l.contains(nextPath.get(nextPath.size()-1)));
+                            priorityQueue.add(nextPath);
+                            map.replace(nextPath.get(nextPath.size()-1),nextPath.size());
+                        } else if (isInMap == -1) {
+                            priorityQueue.add(nextPath);
+                            map.put(nextPath.get(nextPath.size()-1),nextPath.size());
                         }
-                        Thread.sleep(sleepDuration);
                     }
-
-                }
-
-                for (Cell c: map.keySet()){
-                    System.out.println(c+" : "+map.get(c));
-                }
-
-                for (List<Cell> path: foundPaths){
-                    controller.setAllPathFound(path);
-                    System.out.println(path.size());
                 }
 
                 System.out.println("Number of Paths Found: "+foundPaths.size());
@@ -116,85 +81,22 @@ public class Dijkstra extends PathFind{
         };
     }
 
-    public void getPathWithoutTask(){
-        List<Cell> current = new ArrayList<>();
-        Comparator<List<Cell>> comparator = new Comparator<List<Cell>>() {
-            @Override
-            public int compare(List<Cell> o1, List<Cell> o2) {
-                if (o1.size()>o2.size())
-                    return 1;
-                else if (o1.size()== o2.size())
-                    return 0;
-                else
-                    return -1;
-            }
-        };
-        PriorityQueue<List<Cell>> priorityQueue = new PriorityQueue<>(comparator);
-        PriorityQueue<List<Cell>> foundPaths = new PriorityQueue<>(comparator);
-        ArrayList<Cell> rootList = new ArrayList<>();
-        rootList.add(start);
-        priorityQueue.add(rootList);
-        System.out.println("before loop 1");
-        while(!priorityQueue.isEmpty()){
-            System.out.println("inside loop1");
-            current = priorityQueue.poll();
-            Cell latest = current.get(current.size()-1);
-            latest.setVisited(true);
-            //controller.setCellSearched(latest);
-            //controller.setPathConsidering(current);
-            if (latest.getX()== finish.getX() && latest.getY()== finish.getY()) {
-                foundPaths.add(current);
-                continue;
-            }
-            Cell previous;
-            if (current.size()>1)
-                previous = current.get(current.size()-2);
-            else
-                previous = null;
-
-            List<Cell> nextCells = maze.getOpenNeighbors(latest.getX(),latest.getY());
-            nextCells.remove(previous);
-            nextCells.removeAll(current);
-
-            // move to next vertex
-            while (nextCells.size()==1){
-                current.addAll(nextCells);
-                latest = current.get(current.size()-1);
-                latest.setVisited(true);
-                //controller.setCellSearched(latest);
-                if (latest.getX()== finish.getX() && latest.getY()== finish.getY()) {
-                    foundPaths.add(current);
-                    break;
-                }
-                if (current.size()>1)
-                    previous = current.get(current.size()-2);
-                else
-                    previous = null;
-
-                nextCells = maze.getOpenNeighbors(latest.getX(),latest.getY());
-                nextCells.remove(previous);
-                nextCells.removeAll(current);
-                //Thread.sleep(sleepDuration);
-            }
-
-            if (nextCells.size()>1){
-                for (Cell c: nextCells) {
-                    List<Cell> nextPath = new ArrayList<>(current);
-                    nextPath.add(c);
-                    priorityQueue.add(nextPath);
-                }
-                //Thread.sleep(sleepDuration);
-            }
-
-        }
-
-        System.out.println("Number of Paths Found: "+foundPaths.size());
-        if (foundPaths.isEmpty()){
-            // no path is found.
-        } else {
-            for (int i=0; i<foundPaths.size(); i++){
-                controller.setAllPathFound(foundPaths.poll());
-            }
-        }
+    public int isInMap(List<Cell> path){
+        Cell latest = path.get(path.size()-1);
+        if (!map.containsKey(latest))
+            return -1;
+        if (map.get(latest)<=path.size())
+            return 0;
+        return 1;
     }
+
+    public Comparator<List<Cell>> getComparator(){
+        return Comparator.comparingInt(List::size);
+    }
+    public double getDistance(Cell c1, Cell c2){
+        double ab = Math.abs(c1.getX()-c2.getX());
+        double bc = Math.abs(c1.getY()-c2.getY());
+        return Math.hypot(ab,bc);
+    }
+
 }

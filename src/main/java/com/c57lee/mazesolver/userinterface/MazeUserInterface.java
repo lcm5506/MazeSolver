@@ -33,8 +33,8 @@ public class MazeUserInterface {
         this.stage = stage;
         stage.setTitle("Maze Generator");
         root = new BorderPane();
-        horzCellNum = controller.INITIAL_HORIZONTAL_CELL_NUM;
-        vertCellNum = controller.INITIAL_VERTICAL_CELL_NUM;
+        horzCellNum = MazeController.INITIAL_HORIZONTAL_CELL_NUM;
+        vertCellNum = MazeController.INITIAL_VERTICAL_CELL_NUM;
         drawTabPane();
         drawGrid();
         scene = new Scene(root);
@@ -67,6 +67,7 @@ public class MazeUserInterface {
         Tab pfTab = new Tab("PathFind", getPfToolBar());
 
         TabPane toolbarTabPane = new TabPane(genTab,pfTab);
+        toolbarTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         root.setTop(toolbarTabPane);
     }
     public HBox getPfToolBar(){
@@ -83,17 +84,16 @@ public class MazeUserInterface {
         pathFindButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                System.out.println(pfMethod);
                 controller.setPathFindLogic(pfMethod);
                 controller.startPathFindTask();
             }
         });
 
         ComboBox<String> methodComboBox = new ComboBox<>();
-        methodComboBox.getItems().add(controller.PF_DEPTH_FIRST);
-        methodComboBox.getItems().add(controller.PF_BREADTH_FIRST);
-        methodComboBox.getItems().add(controller.PF_DIJKSTRA);
-        methodComboBox.getItems().add(controller.PF_ASTAR);
+        methodComboBox.getItems().add(MazeController.PF_DEPTH_FIRST);
+        methodComboBox.getItems().add(MazeController.PF_BREADTH_FIRST);
+        methodComboBox.getItems().add(MazeController.PF_DIJKSTRA);
+        methodComboBox.getItems().add(MazeController.PF_ASTAR);
         methodComboBox.getSelectionModel().selectFirst();
         pfMethod = methodComboBox.getSelectionModel().getSelectedItem();
         methodComboBox.setOnAction(e->{

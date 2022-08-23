@@ -62,10 +62,4 @@ public class DepthFirstSearch extends PathFind{
         };
     }
 
-    @Override
-    public void getPathWithoutTask() {
-
-    }
-
-
 }

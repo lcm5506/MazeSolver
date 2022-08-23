@@ -79,7 +79,6 @@ public abstract class PathFind {
     }
 
     public abstract Task<List<Cell>> getTask();
-    public abstract void getPathWithoutTask();
 
     public int getMazeWidth(){
         return maze.getWidth();
@@ -100,19 +99,16 @@ public abstract class PathFind {
     public List<Cell> getEdge(Cell start, Cell next){
         List<Cell> edge = new ArrayList<>();
         edge.add(start);
-        Cell latest = start;
-
-        latest.setVisited(true);
+        edge.add(next);
+        Cell latest = next;
         controller.setCellSearched(latest);
-
-        Cell previous = null;
+        Cell previous = start;
 
         List<Cell> nextCells = maze.getOpenNeighbors(latest);
 
         while (nextCells.size()==1){
             edge.addAll(nextCells);
             latest = edge.get(edge.size()-1);
-            latest.setVisited(true);
             controller.setCellSearched(latest);
 
             nextCells = maze.getOpenNeighbors(latest);
