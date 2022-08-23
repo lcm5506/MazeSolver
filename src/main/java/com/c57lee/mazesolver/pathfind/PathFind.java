@@ -67,7 +67,8 @@ public abstract class PathFind {
             public void handle(WorkerStateEvent event) {
                 System.out.println("Task Succeeded.");
                 pathFound.clear();
-                pathFound.addAll(task.getValue());
+                if (task.getValue()!= null)
+                    pathFound.addAll(task.getValue());
                 controller.setPathFound(pathFound);
             }
         });
@@ -101,6 +102,7 @@ public abstract class PathFind {
         edge.add(start);
         edge.add(next);
         Cell latest = next;
+        latest.setVisited(true);
         controller.setCellSearched(latest);
         Cell previous = start;
 
@@ -109,6 +111,7 @@ public abstract class PathFind {
         while (nextCells.size()==1){
             edge.addAll(nextCells);
             latest = edge.get(edge.size()-1);
+            latest.setVisited(true);
             controller.setCellSearched(latest);
 
             nextCells = maze.getOpenNeighbors(latest);

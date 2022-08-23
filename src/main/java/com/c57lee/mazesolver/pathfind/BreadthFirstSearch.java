@@ -20,45 +20,43 @@ public class BreadthFirstSearch extends PathFind {
 
     @Override
     public Task<List<Cell>> getTask() {
-        return new Task<List<Cell>>() {
+        return new Task<>() {
             @Override
             protected List<Cell> call() throws Exception {
-                List<Cell> currentPath = new ArrayList<>();
                 Queue<List<Cell>> queue = new ConcurrentLinkedQueue<>();
                 ArrayList<Cell> rootList = new ArrayList<>();
                 rootList.add(start);
                 queue.add(rootList);
 
-                while (!queue.isEmpty()){
-                    currentPath = queue.poll();
-                    Cell latest = currentPath.get(currentPath.size()-1);
+                while (!queue.isEmpty()) {
+                    List<Cell> current = queue.poll();
+                    Cell latest = current.get(current.size() - 1);
                     latest.setVisited(true);
                     controller.setCellSearched(latest);
 
-                    if (latest.getX() == finish.getX() && latest.getY() == finish.getY()){
-                        pathFound = currentPath;
-                        break;
-                    }
+                    Cell previous = null;
+                    if (current.size() > 1)
+                        previous = current.get(current.size() - 2);
 
-                    Cell previous;
-                    if (currentPath.size()<2)
-                        previous = null;
-                    else
-                        previous = currentPath.get(currentPath.size()-2);
+                    List<Cell> nextList = maze.getUnvisitedOpenNeighbors(latest);
+                    nextList.remove(previous);
 
-                    List<Cell> nextList = maze.getUnvisitedOpenNeighbors(latest.getX(), latest.getY());
-                    // nextList.remove(previous);
-                    //controller.setPreviousNextCells(nextList);
-                    if (!nextList.isEmpty()) {
-                        for (Cell next: nextList) {
-                            ArrayList<Cell> nextPath = new ArrayList<>(currentPath);
-                            nextPath.add(next);
-                            queue.add(nextPath);
+                    if (nextList.isEmpty())
+                        continue;
+                    for (Cell next : nextList) {
+                        ArrayList<Cell> nextPath = new ArrayList<>(current);
+                        List<Cell> edge = getEdge(latest, next);
+                        if (edge.contains(finish)) {
+                            nextPath.addAll(edge.subList(0, edge.indexOf(finish) + 1));
+                            return nextPath;
                         }
-                        Thread.sleep(sleepDuration);
+                        nextPath.addAll(edge);
+                        queue.add(nextPath);
                     }
+                    Thread.sleep(sleepDuration);
+
                 }
-                return currentPath;
+                return null;
             }
         };
     }

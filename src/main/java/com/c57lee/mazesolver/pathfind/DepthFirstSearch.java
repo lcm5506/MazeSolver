@@ -22,42 +22,44 @@ public class DepthFirstSearch extends PathFind{
 
             @Override
             protected List<Cell> call() throws Exception {
-                List<Cell> currentPath = new ArrayList<>();
                 Stack<List<Cell>> stack = new Stack<>();
                 ArrayList<Cell> rootList = new ArrayList<>();
                 rootList.add(start);
                 stack.add(rootList);
 
                 while (!stack.isEmpty()){
-                    currentPath = stack.pop();
+                    List<Cell> current = stack.pop();
 
-                    Cell latest = currentPath.get(currentPath.size()-1);
+                    Cell latest = current.get(current.size()-1);
                     latest.setVisited(true);
                     controller.setCellSearched(latest);
-                    if (latest.getX() == finish.getX() && latest.getY() == finish.getY()){
-                        break;
-                    }
 
-                    Cell previous;
-                    if (currentPath.size()<2)
-                        previous = null;
-                    else
-                        previous = currentPath.get(currentPath.size()-2);
+                    Cell previous = null;
+                    if (current.size()>1)
+                        previous = current.get(current.size()-2);
 
-                    List<Cell> nextList = maze.getUnvisitedOpenNeighbors(latest.getX(), latest.getY());
+                    List<Cell> nextList = maze.getUnvisitedOpenNeighbors(latest);
                     nextList.remove(previous);
-                    if (!nextList.isEmpty()) {
-                        for (Cell next: nextList) {
-                            ArrayList<Cell> nextPath = new ArrayList<>(currentPath);
-                            nextPath.add(next);
-                            stack.push(nextPath);
+
+                    if (nextList.isEmpty())
+                        continue;
+
+                    for (Cell next: nextList) {
+                        ArrayList<Cell> nextPath = new ArrayList<>(current);
+                        List<Cell> edge = getEdge(latest,next);
+                        if (edge.contains(finish)){
+                            nextPath.addAll(edge.subList(0,edge.indexOf(finish)+1));
+                            return nextPath;
                         }
+                        nextPath.addAll(edge);
+                        stack.push(nextPath);
                     }
+
                     Thread.sleep(sleepDuration);
 
                 }
-                System.out.println("last Cell in currentpath : "+currentPath.get(currentPath.size()-1));
-                return currentPath;
+
+                return null;
             }
         };
     }

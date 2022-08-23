@@ -50,9 +50,9 @@ public class Dijkstra extends PathFind{
 
                     if (nextCells.isEmpty())
                         continue;
-                    for(Cell c: nextCells){
+                    for(Cell next: nextCells){
                         List<Cell> nextPath = new ArrayList<>(current);
-                        List<Cell> edge = getEdge(latest,c);
+                        List<Cell> edge = getEdge(latest,next);
                         if (edge.contains(finish)){
                             nextPath.addAll(edge.subList(0,edge.indexOf(finish)+1));
                             foundPaths.add(nextPath);
@@ -62,7 +62,7 @@ public class Dijkstra extends PathFind{
                                 minLength = nextPath.size();
                             continue;
                         }
-                        nextPath.addAll(getEdge(latest,c));
+                        nextPath.addAll(edge);
                         int isInMap = isInMap(nextPath);
                         if (isInMap == 1){
                             priorityQueue.removeIf(l->l.contains(nextPath.get(nextPath.size()-1)));
