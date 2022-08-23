@@ -13,16 +13,16 @@ public class DepthFirst extends GenerationMethod {
         super(width, height);
     }
 
-    public Task getMazeGenTask(){
+    public Task<Void> getMazeGenTask(){
 
-        return new Task<Void>(){
+        return new Task<>() {
 
             @Override
             protected Void call() throws Exception {
                 setRandomStart();
                 Stack<Cell> cStack = new Stack<>();
                 cStack.push(start);
-                while (!cStack.isEmpty()){
+                while (!cStack.isEmpty()) {
                     Cell currCell = cStack.pop();
                     currCell.setVisited(true);
                     updateUICell(currCell);
@@ -31,11 +31,11 @@ public class DepthFirst extends GenerationMethod {
                         cStack.push(currCell);
                         int index = myRandom.nextInt(unvisitedNeighbors.size());
                         Cell randomUnvisitedNeighbor = unvisitedNeighbors.get(index);
-                        connectNeighboringCells(currCell,randomUnvisitedNeighbor);
+                        connectNeighboringCells(currCell, randomUnvisitedNeighbor);
                         randomUnvisitedNeighbor.setVisited(true);
                         cStack.push(randomUnvisitedNeighbor);
                     }
-                     Thread.sleep(sleepDuration);
+                    Thread.sleep(sleepDuration);
                 }
                 System.out.println("Task Complete");
                 return null;

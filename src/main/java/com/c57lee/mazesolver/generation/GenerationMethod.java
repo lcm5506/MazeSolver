@@ -30,7 +30,7 @@ public abstract class GenerationMethod {
     }
 
     public void startMazeGenTask(){
-        Task task = getMazeGenTask();
+        Task<Void> task = getMazeGenTask();
         task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
             @Override
             public void handle(WorkerStateEvent event) {
@@ -44,25 +44,17 @@ public abstract class GenerationMethod {
         thread.start();
     }
 
-    public void pauseMazeGenTask(){
-
-    }
-
-    public abstract Task getMazeGenTask();
-
-
+    public abstract Task<Void> getMazeGenTask();
 
     public void setController(MazeController controller) {
         this.controller = controller;
     }
-
 
     public void connectNeighboringCells(Cell cell1, Cell cell2) {
         maze.connectNeighboringCells(cell1,cell2);
         updateUICell(cell1);
         updateUICell(cell2);
     }
-
 
     public void updateUICell(Cell cell) {
         controller.updateCell(cell);
@@ -76,9 +68,6 @@ public abstract class GenerationMethod {
         this.sleepDuration = sleepDuration;
     }
 
-    public int getSleepDuration() {
-        return sleepDuration;
-    }
     public boolean isGenFinished(){
         return genFinished;
     }

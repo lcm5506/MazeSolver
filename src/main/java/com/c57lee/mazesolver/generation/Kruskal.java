@@ -77,8 +77,8 @@ public class Kruskal extends GenerationMethod{
     }
 
 
-    public class CellSets {
-        private List<Set<Cell>> setsList;
+    public static class CellSets {
+        private final List<Set<Cell>> setsList;
 
         public CellSets(Maze maze){
             setsList = new ArrayList<>();
