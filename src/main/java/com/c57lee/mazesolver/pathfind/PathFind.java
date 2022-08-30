@@ -3,12 +3,14 @@ package com.c57lee.mazesolver.pathfind;
 import com.c57lee.mazesolver.model.Cell;
 import com.c57lee.mazesolver.model.Maze;
 import com.c57lee.mazesolver.userinterface.controller.MazeController;
+import com.c57lee.mazesolver.util.TaskFinishedHandler;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class PathFind {
 
@@ -17,7 +19,7 @@ public abstract class PathFind {
     protected MazeController controller;
     protected int sleepDuration=controller.INITIAL_SLEEP_DURATION;
     protected List<Cell> pathFound;
-
+    protected TaskFinishedHandler handler;
 
     public PathFind(Maze maze){
         this.maze = maze;
@@ -70,6 +72,8 @@ public abstract class PathFind {
                 if (task.getValue()!= null)
                     pathFound.addAll(task.getValue());
                 controller.setPathFound(pathFound);
+                if (Objects.nonNull(handler))
+                    handler.onTaskFinished();
             }
         });
 
@@ -126,5 +130,10 @@ public abstract class PathFind {
         }
         return edge;
     }
+
+    public void setTaskFinishedHandler(TaskFinishedHandler handler){
+        this.handler = handler;
+    }
+
 
 }

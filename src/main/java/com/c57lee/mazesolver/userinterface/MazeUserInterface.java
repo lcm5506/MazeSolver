@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -26,6 +27,7 @@ public class MazeUserInterface {
 
     private int horzCellNum,vertCellNum;
     private String genMethod,pfMethod;
+    private HBox genToolbar, pfToolbar;
 
     public MazeUserInterface(Stage stage){
         this.paneHashMap = new HashMap<>();
@@ -63,8 +65,11 @@ public class MazeUserInterface {
     }
 
     public void drawTabPane(){
-        Tab genTab = new Tab("Generation", getGenToolBar());
-        Tab pfTab = new Tab("PathFind", getPfToolBar());
+        // need to hold global reference to toolbars in case we want to disable enable them later
+        genToolbar = getGenToolBar();
+        pfToolbar = getPfToolBar();
+        Tab genTab = new Tab("Generation", genToolbar);
+        Tab pfTab = new Tab("PathFind", pfToolbar);
 
         TabPane toolbarTabPane = new TabPane(genTab,pfTab);
         toolbarTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
@@ -192,6 +197,22 @@ public class MazeUserInterface {
 
     public Pane getPaneFor(int x, int y){
         return paneHashMap.get(x+","+y);
+    }
+
+    public void disableGenUIControls(){
+        genToolbar.getChildren().forEach(n->n.setDisable(true));
+    }
+
+    public void disablePfUIControls(){
+        pfToolbar.getChildren().forEach(n->n.setDisable(true));
+    }
+
+    public void enableGenUIControls(){
+        genToolbar.getChildren().forEach(n->n.setDisable(false));
+    }
+
+    public void enablePfUIControls(){
+        pfToolbar.getChildren().forEach(n->n.setDisable(false));
     }
 
 

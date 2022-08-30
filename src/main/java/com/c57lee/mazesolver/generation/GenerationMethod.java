@@ -3,10 +3,12 @@ package com.c57lee.mazesolver.generation;
 import com.c57lee.mazesolver.model.Cell;
 import com.c57lee.mazesolver.model.Maze;
 import com.c57lee.mazesolver.userinterface.controller.MazeController;
+import com.c57lee.mazesolver.util.TaskFinishedHandler;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 
+import java.util.Objects;
 import java.util.Random;
 
 public abstract class GenerationMethod {
@@ -16,7 +18,8 @@ public abstract class GenerationMethod {
     protected Random myRandom;
     protected Thread thread;
     protected int sleepDuration = 50;
-    public boolean genFinished;
+    protected boolean genFinished;
+    protected TaskFinishedHandler handler;
 
     public GenerationMethod(int width, int height){
         this.maze = new Maze(width,height);
@@ -36,6 +39,8 @@ public abstract class GenerationMethod {
             public void handle(WorkerStateEvent event) {
                 genFinished = true;
                 //controller.checkMaze();
+                if (Objects.nonNull(handler))
+                    handler.onTaskFinished();
             }
         });
         thread = new Thread(task);
@@ -71,4 +76,11 @@ public abstract class GenerationMethod {
     public boolean isGenFinished(){
         return genFinished;
     }
+
+    public void setTaskFinishedHandler(TaskFinishedHandler handler){
+        this.handler = handler;
+    }
+
+
 }
+

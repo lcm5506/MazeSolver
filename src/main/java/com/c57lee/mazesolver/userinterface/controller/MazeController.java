@@ -3,8 +3,8 @@ package com.c57lee.mazesolver.userinterface.controller;
 import com.c57lee.mazesolver.generation.DepthFirst;
 import com.c57lee.mazesolver.generation.GenerationMethod;
 import com.c57lee.mazesolver.generation.Kruskal;
+import com.c57lee.mazesolver.util.TaskFinishedHandler;
 import com.c57lee.mazesolver.model.Cell;
-import com.c57lee.mazesolver.model.Maze;
 import com.c57lee.mazesolver.pathfind.*;
 import com.c57lee.mazesolver.userinterface.MazeUserInterface;
 import javafx.geometry.Insets;
@@ -38,6 +38,14 @@ public class MazeController {
     private static final Background BACKGROUND_CELL_SEARCHED = new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY));
     private static final Background BACKGROUND_CELL_UNVISITED = new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY,Insets.EMPTY));
     private static final Background BACKGROUND_CELL_VISITED = new Background(new BackgroundFill(Color.GREY, CornerRadii.EMPTY,Insets.EMPTY));
+    public enum State{
+        PREBUILD,
+        BUILDING,
+        BUILT,
+        PATHFINDING,
+        FOUND
+    }
+    public State controllerState = State.PREBUILD;
 
 
 
@@ -47,16 +55,19 @@ public class MazeController {
         this.ui = ui;
         pathConsidered = new ArrayList<>();
         genLogic = new DepthFirst(INITIAL_HORIZONTAL_CELL_NUM,INITIAL_VERTICAL_CELL_NUM); // default logic place holder
-
     }
 
     public void resetGen(){
         genLogic.reset();
         pathConsidered.clear();
+        controllerState = State.PREBUILD;
+        ui.enableGenUIControls();
+        ui.disablePfUIControls();
     }
 
     public void resetPf(){
         pfLogic.reset();
+        controllerState = State.BUILT;
     }
 
     public void updateCell(Cell cell){
@@ -80,7 +91,35 @@ public class MazeController {
     public void startMazeGenTask(){
         if (genLogic == null)
             setGenLogic(ui.getHorzCellNum(), ui.getVertCellNum(), GEN_DEPTH_FIRST);
+        onMazeGenTaskFinished();
         this.genLogic.startMazeGenTask();
+        controllerState = State.BUILDING;
+        ui.disablePfUIControls();
+        ui.disableGenUIControls();
+    }
+
+    public void onMazeGenTaskFinished(){
+        genLogic.setTaskFinishedHandler(new TaskFinishedHandler() {
+            @Override
+            public void onTaskFinished() {
+                controllerState = State.BUILT;
+                // Enable the UI
+                ui.enableGenUIControls();
+                ui.enablePfUIControls();
+            }
+        });
+    }
+
+    public void onPfTaskFinished(){
+        pfLogic.setTaskFinishedHandler(new TaskFinishedHandler() {
+            @Override
+            public void onTaskFinished() {
+                controllerState = State.FOUND;
+                // Enable the UI
+                ui.enableGenUIControls();
+                ui.enablePfUIControls();
+            }
+        });
     }
     public void setGenLogic(int width, int height, String method){
         GenerationMethod selectedLogic;
@@ -104,7 +143,11 @@ public class MazeController {
         resetMazeGridForPf();
         pfLogic.setStart(0,0);
         pfLogic.setFinish(pfLogic.getMazeWidth()-1, pfLogic.getMazeHeight()-1);
+        onPfTaskFinished();
         pfLogic.findPath();
+        controllerState = MazeController.State.PATHFINDING;
+        ui.disablePfUIControls();
+        ui.disableGenUIControls();
 
     }
 
@@ -172,6 +215,7 @@ public class MazeController {
     public boolean isGenFinished(){
         return genLogic.isGenFinished();
     }
+
 
 
 }
